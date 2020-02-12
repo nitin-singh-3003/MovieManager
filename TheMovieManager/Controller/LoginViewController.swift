@@ -1,10 +1,4 @@
-//
-//  LoginViewController.swift
-//  TheMovieManager
-//
-//  Created by Owen LaRosa on 8/13/18.
-//  Copyright © 2018 Udacity. All rights reserved.
-//
+
 
 import UIKit
 
@@ -17,8 +11,8 @@ class LoginViewController: UIViewController {
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
     override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
         
+        super.viewWillAppear(animated)
         emailTextField.text = ""
         passwordTextField.text = ""
     }
@@ -26,6 +20,7 @@ class LoginViewController: UIViewController {
     @IBAction func loginTapped(_ sender: UIButton) {
         setLoggingIn(true)
         TMDBClient.getRequestToken(completion: handleRequestTokenResponse(success:error:))
+      type(of: handleRequestTokenResponse(success:error:))
     }
     
     @IBAction func loginViaWebsiteTapped() {
@@ -79,7 +74,8 @@ class LoginViewController: UIViewController {
     func showLoginFailure(message: String) {
         let alertVC = UIAlertController(title: "Login Failed", message: message, preferredStyle: .alert)
         alertVC.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-        show(alertVC, sender: nil)
+        self.show(alertVC, sender: nil)
+        setLoggingIn(false)
     }
     
 }

@@ -12,5 +12,6 @@ class MovieModel {
     
     static var watchlist = [Movie]()
     static var favorites = [Movie]()
+    static var topRated =  [Movie]()
     
 }

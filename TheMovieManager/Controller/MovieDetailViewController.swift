@@ -23,13 +23,12 @@ class MovieDetailViewController: UIViewController {
     var isFavorite: Bool {
         return MovieModel.favorites.contains(movie)
     }
-    
-    override func viewDidLoad() {
+  override func viewDidLoad() {
         super.viewDidLoad()
         
         navigationItem.title = movie.title
         
-        toggleBarButton(watchlistBarButtonItem, enabled: isWatchlist)
+       toggleBarButton(watchlistBarButtonItem, enabled: isWatchlist)
         toggleBarButton(favoriteBarButtonItem, enabled: isFavorite)
         
         if let posterPath = movie.posterPath {

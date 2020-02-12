@@ -33,28 +33,47 @@ class TMDBClient {
         case markWatchlist
         case markFavorite
         case posterImage(String)
+        case getTopRated
+        case popularMovies
         
         var stringValue: String {
+            
             switch self {
             case .getWatchlist: return Endpoints.base + "/account/\(Auth.accountId)/watchlist/movies" + Endpoints.apiKeyParam + "&session_id=\(Auth.sessionId)"
+                
             case .getFavorites:
                 return Endpoints.base + "/account/\(Auth.accountId)/favorite/movies" + Endpoints.apiKeyParam + "&session_id=\(Auth.sessionId)"
+                
             case .getRequestToken:
                 return Endpoints.base + "/authentication/token/new" + Endpoints.apiKeyParam
+                
             case .login:
                 return Endpoints.base + "/authentication/token/validate_with_login" + Endpoints.apiKeyParam
+                
             case .createSessionId:
                 return Endpoints.base + "/authentication/session/new" + Endpoints.apiKeyParam
+                
             case .logout:
                 return Endpoints.base + "/authentication/session" + Endpoints.apiKeyParam
+                
+            case .getTopRated:
+                return Endpoints.base + "/movie/top_rated" + Endpoints.apiKeyParam
+                
+            case .popularMovies:
+                return Endpoints.base + "/movie/popular" + Endpoints.apiKeyParam
+                
             case .webAuth:
                 return "https://www.themoviedb.org/authenticate/\(Auth.requestToken)?redirect_to=themoviemanager:authenticate"
+                
             case .search(let query):
                 return Endpoints.base + "/search/movie" + Endpoints.apiKeyParam + "&query=\(query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""))"
+                
             case .markWatchlist:
                 return Endpoints.base + "/account/\(Auth.accountId)/watchlist" + Endpoints.apiKeyParam + "&session_id=\(Auth.sessionId)"
+                
             case .markFavorite:
                 return Endpoints.base + "/account/\(Auth.accountId)/favorite" + Endpoints.apiKeyParam + "&session_id=\(Auth.sessionId)"
+                
             case .posterImage(let posterPath):
                 return "https://image.tmdb.org/t/p/w500/" + posterPath
             }
@@ -65,12 +84,17 @@ class TMDBClient {
         }
     }
     
-    class func taskForGETRequest<ResponseType: Decodable>(url: URL, responseType: ResponseType.Type, completion: @escaping (ResponseType?, Error?) -> Void) -> URLSessionDataTask {
-        let task = URLSession.shared.dataTask(with: url) { data, response, error in
+    class func taskForGETRequest<ResponseType: Decodable>(
+      url: URL,
+      responseType: ResponseType.Type,
+      completion: @escaping (ResponseType?, Error?) -> Void
+    ) -> URLSessionDataTask {
+        let task = URLSession.shared.dataTask(with: url) {
+          data, response, error in
             guard let data = data else {
                 DispatchQueue.main.async {
                     completion(nil, error)
-                }
+                    }
                 return
             }
             let decoder = JSONDecoder()
@@ -131,6 +155,7 @@ class TMDBClient {
         task.resume()
     }
     
+    
     class func getWatchlist(completion: @escaping ([Movie], Error?) -> Void) {
         taskForGETRequest(url: Endpoints.getWatchlist.url, responseType: MovieResults.self) { response, error in
             if let response = response {
@@ -140,6 +165,27 @@ class TMDBClient {
             }
         }
     }
+  
+  
+  class func getTopRated(completion: @escaping ([Movie], Error?) -> Void) {
+      taskForGETRequest(url: Endpoints.getTopRated.url, responseType: MovieResults.self) { response, error in
+          if let response = response {
+              completion(response.results, nil)
+          } else {
+              completion([], error)
+          }
+      }
+  }
+  
+  class func getPopularMovies(completion: @escaping ([Movie], Error?) -> Void) {
+      taskForGETRequest(url: Endpoints.popularMovies.url, responseType: MovieResults.self) { response, error in
+          if let response = response {
+              completion(response.results, nil)
+          } else {
+              completion([], error)
+          }
+      }
+  }
     
     class func getFavorites(completion: @escaping ([Movie], Error?) -> Void) {
         taskForGETRequest(url: Endpoints.getFavorites.url, responseType: MovieResults.self) { response, error in
@@ -150,7 +196,7 @@ class TMDBClient {
             }
         }
     }
-    
+  
     class func getRequestToken(completion: @escaping (Bool, Error?) -> Void) {
         taskForGETRequest(url: Endpoints.getRequestToken.url, responseType: RequestTokenResponse.self) { response, error in
             if let response = response {
@@ -175,6 +221,7 @@ class TMDBClient {
     }
     
     class func createSessionId(completion: @escaping (Bool, Error?) -> Void) {
+        
         let body = PostSession(requestToken: Auth.requestToken)
         taskForPOSTRequest(url: Endpoints.createSessionId.url, responseType: SessionResponse.self, body: body) { response, error in
             if let response = response {
@@ -201,7 +248,8 @@ class TMDBClient {
     }
     
     class func search(query: String, completion: @escaping ([Movie], Error?) -> Void) -> URLSessionDataTask {
-        let task = taskForGETRequest(url: Endpoints.search(query).url, responseType: MovieResults.self) { response, error in
+        let task = taskForGETRequest(url: Endpoints.search(query).url, responseType: MovieResults.self) {
+          response, error in
             if let response = response {
                 completion(response.results, nil)
             } else {

@@ -1,10 +1,3 @@
-//
-//  FavoritesViewController.swift
-//  TheMovieManager
-//
-//  Created by Owen LaRosa on 8/13/18.
-//  Copyright © 2018 Udacity. All rights reserved.
-//
 
 import UIKit
 
@@ -41,7 +34,14 @@ class FavoritesViewController: UIViewController {
 extension FavoritesViewController: UITableViewDataSource, UITableViewDelegate {
     
     func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
+        if MovieModel.favorites.count == 0 {
+            tableView.setEmptyView(title: "You don't have any Favourite Movie.", message:"Your list will be here")
+            return 0
+        }
+        else {
+            tableView.restore()
+            return 1
+        }
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -61,6 +61,7 @@ extension FavoritesViewController: UITableViewDataSource, UITableViewDelegate {
                     return
                 }
                 let image = UIImage(data: data)
+              
                 cell.imageView?.image = image
                 cell.setNeedsLayout()
             }
